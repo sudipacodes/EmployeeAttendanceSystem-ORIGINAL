@@ -1,0 +1,4 @@
+using EmployeeAttendanceSystem.DTOs; using EmployeeAttendanceSystem.Services; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc;
+namespace EmployeeAttendanceSystem.Controllers;
+[ApiController][Route("api/auth")]
+public class AuthController:ControllerBase{readonly AuthService auth;public AuthController(AuthService auth){this.auth=auth;}[AllowAnonymous][HttpPost("register")]public IActionResult Register(RegisterDto d){var r=auth.Register(d.Name,d.Email,d.Password);return r.ok?Ok(new{message=r.message,token=r.token,user=new{id=r.user!.Id,name=r.user.Name,email=r.user.Email,role=r.user.Role}}):BadRequest(new{message=r.message});}[AllowAnonymous][HttpPost("login")]public IActionResult Login(LoginDto d){var r=auth.Login(d.Email,d.Password);return r.ok?Ok(new{message=r.message,token=r.token,user=new{id=r.user!.Id,name=r.user.Name,email=r.user.Email,role=r.user.Role}}):Unauthorized(new{message=r.message});}}

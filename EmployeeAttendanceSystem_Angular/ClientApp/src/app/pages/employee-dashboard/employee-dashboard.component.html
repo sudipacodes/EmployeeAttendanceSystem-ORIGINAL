@@ -1,0 +1,128 @@
+<div class="app-bar">
+  <div class="brand-mark"><span class="dot"></span>Inner Eye Attendance Ledger</div>
+  <div class="who">
+    <span>{{ user?.name }}</span>
+    <span class="role-pill">Employee</span>
+    <button class="ghost small" (click)="logout()">Log out</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Today &middot; {{ firstName }}</h2>
+      <span class="meta">{{ todayLabel }}</span>
+    </div>
+
+    <div class="ledger-strip">
+      <div class="ledger-cell">
+        <div class="label">Status</div>
+        <div class="value"><app-status-tag [status]="today?.status"></app-status-tag></div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">Checked in</div>
+        <div class="value num">{{ today?.checkIn | fmtTime }}</div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">Checked out</div>
+        <div class="value num">{{ today?.checkOut | fmtTime }}</div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">Working hours</div>
+        <div class="value num">{{ today?.workingHours | fmtHours }}</div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="brass" [disabled]="!canCheckIn || checkingIn" (click)="checkIn()">
+        {{ checkingIn ? 'Checking in…' : 'Check in' }}
+      </button>
+      <button [disabled]="!canCheckOut || checkingOut" (click)="checkOut()">
+        {{ checkingOut ? 'Checking out…' : 'Check out' }}
+      </button>
+    </div>
+    <p class="helper">Check-in after 9:30 AM is recorded as Late. Days under 4 working hours are recorded as Half Day.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Attendance history</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Check in</th><th>Check out</th><th>Working hours</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!history.length" class="empty-row"><td colspan="5">No records yet.</td></tr>
+          <tr *ngFor="let row of history">
+            <td>{{ row.date | fmtDate }}</td>
+            <td>{{ row.checkIn | fmtTime }}</td>
+            <td>{{ row.checkOut | fmtTime }}</td>
+            <td>{{ row.workingHours | fmtHours }}</td>
+            <td><app-status-tag [status]="row.status"></app-status-tag></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Leave</h2>
+      <span class="meta">
+        Allowance {{ summary.monthlyAllowance }} day(s) &middot;
+        Approved {{ summary.approvedDays }} &middot;
+        Deducted {{ summary.deductedDays }}
+      </span>
+    </div>
+
+    <form [formGroup]="leaveForm" (ngSubmit)="submitLeave()">
+      <div class="field-row">
+        <div class="field">
+          <label for="leaveStart">Start date <span class="req">*</span></label>
+          <input id="leaveStart" type="date" formControlName="startDate">
+          <div class="field-error" *ngIf="leaveForm.controls.startDate.touched && leaveForm.controls.startDate.invalid">
+            <span>Start date is required.</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="leaveEnd">End date <span class="req">*</span></label>
+          <input id="leaveEnd" type="date" formControlName="endDate">
+          <div class="field-error" *ngIf="leaveForm.controls.endDate.touched && leaveForm.controls.endDate.invalid">
+            <span>End date is required.</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="leaveReason">Reason <span class="req">*</span></label>
+        <input id="leaveReason" type="text" formControlName="reason" placeholder="e.g. Family function">
+        <div class="field-error" *ngIf="leaveForm.controls.reason.touched && leaveForm.controls.reason.invalid">
+          <span>Reason is required.</span>
+        </div>
+      </div>
+      <button class="brass" type="submit">Apply for leave</button>
+    </form>
+
+    <h2 style="margin-top:1.8rem;font-size:1rem">Leave history</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!leaves.length" class="empty-row"><td colspan="5">No records yet.</td></tr>
+          <tr *ngFor="let l of leaves">
+            <td>{{ l.startDate | fmtDate }}</td>
+            <td>{{ l.endDate | fmtDate }}</td>
+            <td>{{ l.days }}</td>
+            <td>{{ l.reason }}</td>
+            <td><app-status-tag [status]="l.status"></app-status-tag></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

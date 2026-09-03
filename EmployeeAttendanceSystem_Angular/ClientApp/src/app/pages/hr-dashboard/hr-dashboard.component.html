@@ -1,0 +1,113 @@
+<div class="app-bar">
+  <div class="brand-mark"><span class="dot"></span>Inner Eye Attendance Ledger</div>
+  <div class="who">
+    <span>{{ user?.name }}</span>
+    <span class="role-pill">HR</span>
+    <button class="ghost small" (click)="logout()">Log out</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Workforce overview</h2>
+      <span class="meta">{{ todayLabel }}</span>
+    </div>
+    <div class="ledger-strip">
+      <div class="ledger-cell">
+        <div class="label">Total employees</div>
+        <div class="value num">{{ stats.totalEmployees }}</div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">Present today</div>
+        <div class="value num">{{ stats.presentToday }}</div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">Absent today</div>
+        <div class="value num">{{ stats.absentToday }}</div>
+      </div>
+      <div class="ledger-cell">
+        <div class="label">On leave today</div>
+        <div class="value num">{{ stats.onLeaveToday }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Today's attendance</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Employee</th><th>Check in</th><th>Check out</th><th>Working hours</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!attendance.length" class="empty-row"><td colspan="5">No records yet.</td></tr>
+          <tr *ngFor="let row of attendance">
+            <td>{{ row.employee }}</td>
+            <td>{{ row.checkIn | fmtTime }}</td>
+            <td>{{ row.checkOut | fmtTime }}</td>
+            <td>{{ row.workingHours | fmtHours }}</td>
+            <td><app-status-tag [status]="row.status"></app-status-tag></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Leave requests</h2>
+      <span class="meta">Approve or reject employee leave applications</span>
+    </div>
+    <div class="tabs">
+      <button *ngFor="let f of filters" [class.active]="leaveFilter === f" (click)="setFilter(f)">{{ f }}</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Employee</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!visibleLeaves.length" class="empty-row"><td colspan="7">No records yet.</td></tr>
+          <tr *ngFor="let l of visibleLeaves">
+            <td>{{ l.user?.name || '—' }}</td>
+            <td>{{ l.startDate | fmtDate }}</td>
+            <td>{{ l.endDate | fmtDate }}</td>
+            <td>{{ l.days }}</td>
+            <td>{{ l.reason }}</td>
+            <td><app-status-tag [status]="l.status"></app-status-tag></td>
+            <td>
+              <div class="actions-row" *ngIf="l.status === 'Pending'; else noAction">
+                <button class="approve small" (click)="decide(l.id, 'Approved')">Approve</button>
+                <button class="reject small" (click)="decide(l.id, 'Rejected')">Reject</button>
+              </div>
+              <ng-template #noAction>—</ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Employees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Joined</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!employees.length" class="empty-row"><td colspan="4">No records yet.</td></tr>
+          <tr *ngFor="let e of employees">
+            <td>{{ e.name }}</td>
+            <td>{{ e.email }}</td>
+            <td>{{ e.createdAt | fmtDate }}</td>
+            <td><span class="status-tag" [class.active]="e.isActive" [class.inactive]="!e.isActive">{{ e.isActive ? 'Active' : 'Inactive' }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,2 @@
+namespace EmployeeAttendanceSystem.Models;
+public class LeaveRequest { public int Id{get;set;} public int UserId{get;set;} public DateTime StartDate{get;set;} public DateTime EndDate{get;set;} public string Reason{get;set;}=""; public string Status{get;set;}="Pending"; public DateTime CreatedAt{get;set;}=DateTime.UtcNow; public User? User{get;set;} public int Days => Math.Max(1,(EndDate.Date-StartDate.Date).Days+1); }
